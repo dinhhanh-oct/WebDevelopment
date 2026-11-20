@@ -90,5 +90,84 @@
         }
 
         /* 4. BÀN PHÍM: CSS Grid 4 cột */
-        
+        .keypad {display: grid; grid-template-columns: repeat(4,1fr); gap:10px;}
+        .key {
+          height: 60px:
+          border: none;
+          border-radius: 16px;
+          background: var(--key);
+          color: var(--text);
+          font: inherit;
+          font-size: 1.4rem;
+          cursor: pointer;
+          box-shadow: 0 3px 0 var(--key-edge);
+          transition: transform 0.06s, box-shadow 0.06s, filter 0.15s;
+          user-select: none;
+          -webkit-tap-highlight-color: transparent;
+        }
+        @media (hover: hover) { .key:honer {filterL brightness(var(--honer));}}
+        /*khi bam: phím lún xuống 3px, viền dưới biến mất */
+        .key:active, .key.pressed {transform: translateY(3px); box-shadow: 0 0 0 var(--key-edge);}
+        .key:focus-visible, .theme-toggle:focus-visible { outline: 3px solid var(--op-text; outline-offset: 2px;}
+        .key.fn {background: var(--key-fn); font-size: 1.15rem;}
+        .key.operator { background: var(--op-bg); color: var(--op-text);}
+        /*phép tính đang chờ: phím giữ trạng thai lún, có viền đậm*/
+        .key.operatoe.active { transform: translateY (3px); box-shadow: inset 0 0 0 2px var(--op-text);}
+        .key.equals { background: var(--equals-bg); color: var(--equals-text);}
+
+        /*5. Lịch sử*/
+        .history { background: var (--body); border-radius: 20px; padding: 16px 18px;}
+        .history h2 {font-size: 1rem; margin-bottom: 10px;}
+        .history ol { list-style: none; padding: 0; display: grid; gap: 8px; color: var(--muted);}
+        .history li { font-variant-numericL tabular-nums; overflow-wrap: anywhere;}
+        .history li:first-child { color: var(--text); font-weight: 600;}
+        .history ol:empty::before { content: "Kết quả các phép tính sẽ hiển thị ở đây."; font-size: 0.9rem;}
+
+        @media (prefers-refuced-motion: reduce) {* {transition: none !important;} }
       </style>
+</head>
+</body>
+  <main class="app">
+    <div class="top-bar>
+      <h1>Máy tính</h1>
+      <button class="theme-toggle" id="theme-toggle" aria-lable="Đổi chế độ sáng/tối"> </div>button>
+    </div>
+    <!Bàn phím: data-action = loại nút, data-value=giá trị của nút -->
+    <div class = "keypad" id = "keypad">
+      <button class = "key fn" data-action = "clean" aria-label = "xóa tất cả">AC</button>
+      <button class = "key fn" data-action = "delete" aria-label = "xóa một ký tự">⌫</button>
+      <button class ="key fn" data-action = "percent" aria-label = "Phần trăm">%</button>
+      <button class = "key operator" data-action="operator" data-value="/" aria-label="chia">÷</button>
+
+      <button class = "key" data-action="digit" data-value="7">7</button>
+      <button class = "key" data-action = "digit" data-value = "8">8</buttom>
+      <button class ="key" data-action = "digit" data-value ="9">9</button>
+      <button class = "key operator" data-action="operator" data-value="*" aria-label="Nhân">x</button>
+
+      <button class = "key" data-action = "digit" data-value="4">4</button>
+      <button class = "key" data-action = "digit" data-value = "5">5</button>
+      <button class =" key" data-action = "digit" data-value="6">6</button>
+      <button class = "key operator" data-action = "operator" data-value="-" aria-label="Trừ">-</button>
+
+      <button class ="key" data-action ="digit" data-value="1">1</button>
+      <button class = "key" data-action = "digit" data-value = "2">2</button>
+      <button class ="key" data-action ="digit" data-value = "3">3</button>
+      <button class ="key operator" data-action ="operator" data-value="+" aria-label="Cộng">+</buton>
+
+      <button class ="key fn" data-action ="sign" aria-lable="Đổi dấu">+/-</button>
+      <button class = "key" data-action = "digit" data-value="0">0</button>
+      <button class ="key" data-action = "decimal" aria-label = "Dấu thập phân">.</button>
+      <button class ="key equals" data-action ="equals" aria-label="Bằng">=</button>
+      </div>
+  </div>
+
+  <section class = "history" aria-label= "Lịch sử phép tính">
+    <h2>Lịch sử</h2>
+    <ol>id="history-list"</ol>
+  </section>
+</main>
+
+<script>
+  
+</script>
+      
