@@ -116,7 +116,7 @@
         .key.equals { background: var(--equals-bg); color: var(--equals-text);}
 
         /*5. Lịch sử*/
-        .history { background: var (--body); border-radius: 20px; padding: 16px 18px;}
+        .history { background: var(--body); border-radius: 20px; padding: 16px 18px;}
         .history h2 {font-size: 1rem; margin-bottom: 10px;}
         .history ol { list-style: none; padding: 0; display: grid; gap: 8px; color: var(--muted);}
         .history li { font-variant-numericL tabular-nums; overflow-wrap: anywhere;}
@@ -130,23 +130,29 @@
   <main class="app">
     <div class="top-bar>
       <h1>Máy tính</h1>
-      <button class="theme-toggle" id="theme-toggle" aria-lable="Đổi chế độ sáng/tối"> </div>button>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Đổi chế độ sáng/tối">🌙</button>
     </div>
-    <!Bàn phím: data-action = loại nút, data-value=giá trị của nút -->
+
+    <!-- Màn hình: dòng trên là biểu thức, dòng dưới là số đang nhập hoặc kết quá-->
+    <div class="display">
+      <div class="expression" id="expression"></div>
+      <div class="result" id="result" aria-live="polite">0</div>
+    </div>
+    <!--Bàn phím: data-action = loại nút, data-value=giá trị của nút -->
     <div class = "keypad" id = "keypad">
       <button class = "key fn" data-action = "clean" aria-label = "xóa tất cả">AC</button>
       <button class = "key fn" data-action = "delete" aria-label = "xóa một ký tự">⌫</button>
-      <button class ="key fn" data-action = "percent" aria-label = "Phần trăm">%</button>
+      <button class = "key fn" data-action = "percent" aria-label = "Phần trăm">%</button>
       <button class = "key operator" data-action="operator" data-value="/" aria-label="chia">÷</button>
 
       <button class = "key" data-action="digit" data-value="7">7</button>
-      <button class = "key" data-action = "digit" data-value = "8">8</buttom>
-      <button class ="key" data-action = "digit" data-value ="9">9</button>
+      <button class = "key" data-action = "digit" data-value ="8">8</buttom>
+      <button class = "key" data-action = "digit" data-value ="9">9</button>
       <button class = "key operator" data-action="operator" data-value="*" aria-label="Nhân">x</button>
 
-      <button class = "key" data-action = "digit" data-value="4">4</button>
-      <button class = "key" data-action = "digit" data-value = "5">5</button>
-      <button class =" key" data-action = "digit" data-value="6">6</button>
+      <button class = "key" data-action = "digit" data-value ="4">4</button>
+      <button class = "key" data-action = "digit" data-value ="5">5</button>
+      <button class =" key" data-action = "digit" data-value ="6">6</button>
       <button class = "key operator" data-action = "operator" data-value="-" aria-label="Trừ">-</button>
 
       <button class ="key" data-action ="digit" data-value="1">1</button>
@@ -168,6 +174,64 @@
 </main>
 
 <script>
+  //1. Hằng số và trạng thái
+  const MAX_DIGITS = 12;//số chữ số tối đa khi nhập
+  const MAX_HISTORY = 5; // số dòng lịch sử giữ lại
+  const SYMBOLS = {'+': '+','-':'-', 'x':'x','/':':'÷'};
+  // toàn bộ "bộ nhớ" của máy tính nằm trong object này
+  const state = {
+    current: '0', previous: null, operator: null, waitingForNext: false, expression: '', error: false};
+  const history = [];
+
+  // lấy các phần tử HTML cần dùng
+  const resultEl = document.getElementById('result');
+  const expressionEl = document.getElementById('expression');
+  const keypad = document.getElementById('keypad');
+  const historyList = document.getElementById('history-list');
+  const themeToggle = document.getElementById('theme-toggle');
+
+  //2. Nhap lieu
+  function inputDigit(digit){
+    if(state.error) clearAll();
+    if(state.waitingForNext){
+      startNewNumber(digit);
+      return ;
+    }
+    const digitCount = state.current.replace(/[-.]/g,'').length;
+    if(digitCount >=MAX_DIGITS) return;
+    state.current = state.current ==='0' ? digit:state.current+digit;
+  }
+  function inputDecimal(){
+    if(state.error) clearAll();
+    if(state.waitingForNext){
+      startNewNumber('0.');
+      return;
+    }
+    if(!state.current.includes('.')) state.current +='.'// chỉ cho 1 dấu chấm
+  }
+  // bắt đầu nhập một số mới (sau khia bâm phép tính hoặc =)
+  function startNewNumber (value){
+    state.current = value;
+    state.waitingForNext = false;
+    if(state.operator === null) state.expression = ''; // vừa bấm '=' -> phép tính mới
+  }
+  function deleteLast(){
+    if(state.error){
+      clearAll();
+      return;
+    }
+    if(state.waitingForNext) return; // không sửa kết quả đã tính
+    state.current = state.current.slice(0,-1);
+    if(['','-','-0'].includes(state.current)) state.current = '0';
+  }
+  function clearAll(){
+    state.current = '0';
+    state.previous = null;
+    state.operator = null;
+    state.waitingForNext = false;
+    state.expression = '';
+    state.error = false;
+  }
   
 </script>
       
