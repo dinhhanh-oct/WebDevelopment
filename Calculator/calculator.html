@@ -105,7 +105,7 @@
           user-select: none;
           -webkit-tap-highlight-color: transparent;
         }
-        @media (hover: hover) { .key:honer {filterL brightness(var(--honer));}}
+        @media (hover: hover) { .key:honer {filter: brightness(var(--honer));}}
         /*khi bam: phím lún xuống 3px, viền dưới biến mất */
         .key:active, .key.pressed {transform: translateY(3px); box-shadow: 0 0 0 var(--key-edge);}
         .key:focus-visible, .theme-toggle:focus-visible { outline: 3px solid var(--op-text; outline-offset: 2px;}
@@ -128,16 +128,17 @@
 </head>
 </body>
   <main class="app">
-    <div class="top-bar>
-      <h1>Máy tính</h1>
-      <button class="theme-toggle" id="theme-toggle" aria-label="Đổi chế độ sáng/tối">🌙</button>
-    </div>
+    <div class = "calculator">
+      <div class="top-bar>
+        <h1>Máy tính</h1>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Đổi chế độ sáng/tối">🌙</button>
+      </div>
 
-    <!-- Màn hình: dòng trên là biểu thức, dòng dưới là số đang nhập hoặc kết quá-->
-    <div class="display">
-      <div class="expression" id="expression"></div>
-      <div class="result" id="result" aria-live="polite">0</div>
-    </div>
+      <!-- Màn hình: dòng trên là biểu thức, dòng dưới là số đang nhập hoặc kết quá-->
+      <div class="display">
+        <div class="expression" id="expression"></div>
+        <div class="result" id="result" aria-live="polite">0</div>
+      </div>
     <!--Bàn phím: data-action = loại nút, data-value=giá trị của nút -->
     <div class = "keypad" id = "keypad">
       <button class = "key fn" data-action = "clean" aria-label = "xóa tất cả">AC</button>
@@ -169,7 +170,7 @@
 
   <section class = "history" aria-label= "Lịch sử phép tính">
     <h2>Lịch sử</h2>
-    <ol>id="history-list"</ol>
+    <ol id="history-list"></ol>
   </section>
 </main>
 
@@ -224,6 +225,21 @@
     state.current = state.current.slice(0,-1);
     if(['','-','-0'].includes(state.current)) state.current = '0';
   }
+
+  function toggleSign(){
+    if(state.error || state.current === '0') return;
+    state.current = state.current.startsWith('-') ? state.current.slice(1) : '_' + state.current;
+  }  
+
+  function percent(){
+    if(state.error) return;
+    let value = parseFloat(state.current)/100;
+    if(state.operator === '+' || state.operator ==='-'){
+      value = state.previous * value;
+    }
+    state.current = formatNumber(roundNumber(value));
+  }
+  
   function clearAll(){
     state.current = '0';
     state.previous = null;
@@ -232,6 +248,30 @@
     state.expression = '';
     state.error = false;
   }
-  
+
+  // 3. tính toán
+  function chooseOperator(nextOperator){
+    if(state.error) return;
+    if(state.operator === null){
+      state.previous = parseFloat(state.current);//luu so thu nhat
+    }else if(!state.waitingForNext){
+      if(!runPendingOperation()) return;
+    }
+    // truong hop con laij (bam 2 phep tinhs lien nhau): chi doi phep tinh
+    state.operator = nextOperator;
+    state.waitingForNext = true;
+    state.expression = '${formatNumber(state.previous)} ${SYMBOLS[nextOperator]}';
+  }
+  function pressEquals(){
+    if(state.error || state.operator === null || state.waitingForNext) return;
+    const b = parseFloat(state.current);
+    const expression = '${formatNumber(state.previous)} ${SYMBOLS[state.operator]} ${formatNumber(b)}=';
+    if(!runPendingOperation()) return;
+    addHistory{'$expression} ${state.current}');
+    state.expression = expression;
+    state.previous = null;
+    state.operator = null;
+    state.waitingForNext = true;
+  }
 </script>
       
