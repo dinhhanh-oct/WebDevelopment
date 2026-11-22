@@ -257,7 +257,7 @@
     }else if(!state.waitingForNext){
       if(!runPendingOperation()) return;
     }
-    // truong hop con laij (bam 2 phep tinhs lien nhau): chi doi phep tinh
+    // truong hop con lai (bam 2 phep tinh lien nhau): chi doi phep tinh
     state.operator = nextOperator;
     state.waitingForNext = true;
     state.expression = '${formatNumber(state.previous)} ${SYMBOLS[nextOperator]}';
@@ -273,5 +273,33 @@
     state.operator = null;
     state.waitingForNext = true;
   }
+
+    // Tính: previous current và lưu kết quả. Trả về kết quả true-false
+    function runPendingOperation() {
+      const b = parseFloat(state.current);
+      if (state.operator === '/' && b === 0) {
+        showError('Không thể chia cho 0');
+        return false;
+      }
+      const result = calculate(state.previous, b, state.operator);
+      if (!Number.isFinite(result)) {
+        showError('Số quá lớn');
+        return false;
+      }
+      state.previous = result;
+      state.current = formatNumber(result);
+      return true;
+    }
+
+    // Hàm thuần: chỉ nhận 2 số và phép tính, trả về kết quả
+    function calculate(a, b, operator) {
+      let result;
+      switch (operator) {
+        case '+': result = a + b; break;
+        case '-': result = a - b; break;
+        case '*': result = a * b; break;
+        case '/': result = a / b; break;
+      }
+      return roundNumber(result);
 </script>
       
