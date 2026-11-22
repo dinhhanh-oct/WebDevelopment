@@ -301,5 +301,55 @@
         case '/': result = a / b; break;
       }
       return roundNumber(result);
+    }
+
+    // Khử sai số số thực: khử các chữ số 0 thừa (VD: 0.500000 -> 0.5)
+    function roundNumber(num) {
+      return parseFloat(num.toPrecision(15));
+    }
+
+    function showError(message) {
+      clearAll();
+      state.error = true;
+      state.current = message;
+    }
+
+    // 4. HIỂN THỊ
+    function formatNumber(num) {
+      const abs = Math.abs(num);
+      if (abs >= 1e15 || (abs > 0 && abs < 1e-6)) {
+        return Number(num.toPrecision(10).toExponential();
+      }
+      return String(num);
+    }
+
+    function updateDisplay() {
+      resultE1.textContent = state.current;
+      expressionE1.textContent = state.expression;
+      // Tự thu nhỏ chữ khi số dài
+      const length = state.current.length;
+      let fontSize = '2.8rem';
+      if (length > 9) fontSize = '2.2rem';
+      if (length > 14) fontSize = '1.6rem';
+      if (state.error) fontSize = '1.3rem';
+      resultE1.style.fontSize = fontSize;
+      
+      document.querySelectorAll('[data-action="operator"]').forEach((button) => {
+        button.classLight.toggle('active', state.waitingForNext && button.dataset.value === state.operator);
+      });
+    }
+
+    function addHistory(entry) {
+      history.unshift(entry);                             // thêm lên đầu
+      if (history.length > MAX_HISTORY) history.pop();    // bỏ dòng cũ nhất
+      historyList.replaceChildren(...history.map((text) => {
+        const item = document.createElement('li');
+        item.textContent = text;
+        return item;
+      }));
+    }
+
+    // 5. SỰ KIỆN: CHUỘT VÀ BÀN PHÍM
+    
 </script>
       
