@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="light"
+<html lang="vi" data-theme="light">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -105,14 +105,14 @@
           user-select: none;
           -webkit-tap-highlight-color: transparent;
         }
-        @media (hover: hover) { .key:honer {filter: brightness(var(--honer));}}
+        @media (hover: hover) { .key:hover {filter: brightness(var(--hover));}}
         /*khi bam: phím lún xuống 3px, viền dưới biến mất */
         .key:active, .key.pressed {transform: translateY(3px); box-shadow: 0 0 0 var(--key-edge);}
         .key:focus-visible, .theme-toggle:focus-visible { outline: 3px solid var(--op-text); outline-offset: 2px;}
         .key.fn {background: var(--key-fn); font-size: 1.15rem;}
         .key.operator { background: var(--op-bg); color: var(--op-text);}
         /*phép tính đang chờ: phím giữ trạng thai lún, có viền đậm*/
-        .key.operatoe.active { transform: translateY (3px); box-shadow: inset 0 0 0 2px var(--op-text);}
+        .key.operator.active { transform: translateY(3px); box-shadow: inset 0 0 0 2px var(--op-text);}
         .key.equals { background: var(--equals-bg); color: var(--equals-text);}
 
         /*5. Lịch sử*/
@@ -123,13 +123,13 @@
         .history li:first-child { color: var(--text); font-weight: 600;}
         .history ol:empty::before { content: "Kết quả các phép tính sẽ hiển thị ở đây."; font-size: 0.9rem;}
 
-        @media (prefers-refuced-motion: reduce) {* {transition: none !important;} }
+        @media (prefers-reduced-motion: reduce) {* {transition: none !important;} }
       </style>
 </head>
-</body>
+<body>
   <main class="app">
     <div class = "calculator">
-      <div class="top-bar>
+      <div class="top-bar">
         <h1>Máy tính</h1>
         <button class="theme-toggle" id="theme-toggle" aria-label="Đổi chế độ sáng/tối">🌙</button>
       </div>
@@ -141,25 +141,25 @@
       </div>
     <!--Bàn phím: data-action = loại nút, data-value=giá trị của nút -->
     <div class = "keypad" id = "keypad">
-      <button class = "key fn" data-action = "clean" aria-label = "xóa tất cả">AC</button>
+      <button class = "key fn" data-action = "clear" aria-label = "xóa tất cả">AC</button>
       <button class = "key fn" data-action = "delete" aria-label = "xóa một ký tự">⌫</button>
       <button class = "key fn" data-action = "percent" aria-label = "Phần trăm">%</button>
       <button class = "key operator" data-action="operator" data-value="/" aria-label="chia">÷</button>
 
       <button class = "key" data-action="digit" data-value="7">7</button>
-      <button class = "key" data-action = "digit" data-value ="8">8</buttom>
+      <button class = "key" data-action = "digit" data-value ="8">8</button>
       <button class = "key" data-action = "digit" data-value ="9">9</button>
       <button class = "key operator" data-action="operator" data-value="*" aria-label="Nhân">x</button>
 
       <button class = "key" data-action = "digit" data-value ="4">4</button>
       <button class = "key" data-action = "digit" data-value ="5">5</button>
-      <button class =" key" data-action = "digit" data-value ="6">6</button>
+      <button class = "key" data-action = "digit" data-value ="6">6</button>
       <button class = "key operator" data-action = "operator" data-value="-" aria-label="Trừ">-</button>
 
       <button class ="key" data-action ="digit" data-value="1">1</button>
       <button class = "key" data-action = "digit" data-value = "2">2</button>
       <button class ="key" data-action ="digit" data-value = "3">3</button>
-      <button class ="key operator" data-action ="operator" data-value="+" aria-label="Cộng">+</buton>
+      <button class ="key operator" data-action ="operator" data-value="+" aria-label="Cộng">+</button>
 
       <button class ="key fn" data-action ="sign" aria-label="Đổi dấu">+/-</button>
       <button class = "key" data-action = "digit" data-value="0">0</button>
@@ -178,7 +178,7 @@
   //1. Hằng số và trạng thái
   const MAX_DIGITS = 12;//số chữ số tối đa khi nhập
   const MAX_HISTORY = 5; // số dòng lịch sử giữ lại
-  const SYMBOLS = {'+': '+','-':'-', 'x':'x','/':'÷'};
+  const SYMBOLS = {'+': '+','-':'-', '*':'x','/':'÷'};
   // toàn bộ "bộ nhớ" của máy tính nằm trong object này
   const state = {
     current: '0', previous: null, operator: null, waitingForNext: false, expression: '', error: false};
@@ -228,7 +228,7 @@
 
   function toggleSign(){
     if(state.error || state.current === '0') return;
-    state.current = state.current.startsWith('-') ? state.current.slice(1) : '_' + state.current;
+    state.current = state.current.startsWith('-') ? state.current.slice(1) : '-' + state.current;
   }  
 
   function percent(){
@@ -260,14 +260,14 @@
     // truong hop con lai (bam 2 phep tinh lien nhau): chi doi phep tinh
     state.operator = nextOperator;
     state.waitingForNext = true;
-    state.expression = '${formatNumber(state.previous)} ${SYMBOLS[nextOperator]}';
+    state.expression = `${formatNumber(state.previous)} ${SYMBOLS[nextOperator]}`;
   }
   function pressEquals(){
     if(state.error || state.operator === null || state.waitingForNext) return;
     const b = parseFloat(state.current);
-    const expression = `${formatNumber(state.previous)} ${SYMBOLS[state.operator]} ${formatNumber(b)}=`;
+    const expression = `${formatNumber(state.previous)} ${SYMBOLS[state.operator]} ${formatNumber(b)} =`;
     if(!runPendingOperation()) return;
-    addHistory(`${$expression} ${state.current}`);
+    addHistory(`${expression} ${state.current}`);
     state.expression = expression;
     state.previous = null;
     state.operator = null;
@@ -318,24 +318,24 @@
     function formatNumber(num) {
       const abs = Math.abs(num);
       if (abs >= 1e15 || (abs > 0 && abs < 1e-6)) {
-        return Number(num.toPrecision(10).toExponential());
+        return Number(num.toPrecision(10)).toExponential();
       }
       return String(num);
     }
 
     function updateDisplay() {
-      resultE1.textContent = state.current;
-      expressionE1.textContent = state.expression;
+      resultEl.textContent = state.current;
+      expressionEl.textContent = state.expression;
       // Tự thu nhỏ chữ khi số dài
       const length = state.current.length;
       let fontSize = '2.8rem';
       if (length > 9) fontSize = '2.2rem';
       if (length > 14) fontSize = '1.6rem';
       if (state.error) fontSize = '1.3rem';
-      resultE1.style.fontSize = fontSize;
+      resultEl.style.fontSize = fontSize;
       
       document.querySelectorAll('[data-action="operator"]').forEach((button) => {
-        button.classLight.toggle('active', state.waitingForNext && button.dataset.value === state.operator);
+        button.classList.toggle('active', state.waitingForNext && button.dataset.value === state.operator);
       });
     }
 
@@ -374,7 +374,7 @@
     const KEY_MAP = {
       'Enter': ['equals'], '=': ['equals'],
       'Backspace': ['delete'], 'Escape': ['clear'],
-      '.': ['decimal'], ',': ['decimal'], '%': [percent],
+      '.': ['decimal'], ',': ['decimal'], '%': ['percent'],
       '+': ['operator', '+'], '-': ['operator', '-'],
       '*': ['operator', '*'], 'x': ['operator', '*'], '/': ['operator', '/']
     };
