@@ -92,7 +92,7 @@
         /* 4. BÀN PHÍM: CSS Grid 4 cột */
         .keypad {display: grid; grid-template-columns: repeat(4,1fr); gap:10px;}
         .key {
-          height: 60px:
+          height: 60px;
           border: none;
           border-radius: 16px;
           background: var(--key);
@@ -108,7 +108,7 @@
         @media (hover: hover) { .key:honer {filter: brightness(var(--honer));}}
         /*khi bam: phím lún xuống 3px, viền dưới biến mất */
         .key:active, .key.pressed {transform: translateY(3px); box-shadow: 0 0 0 var(--key-edge);}
-        .key:focus-visible, .theme-toggle:focus-visible { outline: 3px solid var(--op-text; outline-offset: 2px;}
+        .key:focus-visible, .theme-toggle:focus-visible { outline: 3px solid var(--op-text); outline-offset: 2px;}
         .key.fn {background: var(--key-fn); font-size: 1.15rem;}
         .key.operator { background: var(--op-bg); color: var(--op-text);}
         /*phép tính đang chờ: phím giữ trạng thai lún, có viền đậm*/
@@ -119,7 +119,7 @@
         .history { background: var(--body); border-radius: 20px; padding: 16px 18px;}
         .history h2 {font-size: 1rem; margin-bottom: 10px;}
         .history ol { list-style: none; padding: 0; display: grid; gap: 8px; color: var(--muted);}
-        .history li { font-variant-numericL tabular-nums; overflow-wrap: anywhere;}
+        .history li { font-variant-numeric: tabular-nums; overflow-wrap: anywhere;}
         .history li:first-child { color: var(--text); font-weight: 600;}
         .history ol:empty::before { content: "Kết quả các phép tính sẽ hiển thị ở đây."; font-size: 0.9rem;}
 
@@ -178,7 +178,7 @@
   //1. Hằng số và trạng thái
   const MAX_DIGITS = 12;//số chữ số tối đa khi nhập
   const MAX_HISTORY = 5; // số dòng lịch sử giữ lại
-  const SYMBOLS = {'+': '+','-':'-', 'x':'x','/':':'÷'};
+  const SYMBOLS = {'+': '+','-':'-', 'x':'x','/':'÷'};
   // toàn bộ "bộ nhớ" của máy tính nằm trong object này
   const state = {
     current: '0', previous: null, operator: null, waitingForNext: false, expression: '', error: false};
@@ -192,7 +192,7 @@
   const themeToggle = document.getElementById('theme-toggle');
 
   //2. Nhap lieu
-  function inputDigit(digit){
+  function inputDigit(digit) {
     if(state.error) clearAll();
     if(state.waitingForNext){
       startNewNumber(digit);
@@ -208,7 +208,7 @@
       startNewNumber('0.');
       return;
     }
-    if(!state.current.includes('.')) state.current +='.'// chỉ cho 1 dấu chấm
+    if(!state.current.includes('.')) state.current +='.';  // chỉ cho 1 dấu chấm
   }
   // bắt đầu nhập một số mới (sau khia bâm phép tính hoặc =)
   function startNewNumber (value){
@@ -265,9 +265,9 @@
   function pressEquals(){
     if(state.error || state.operator === null || state.waitingForNext) return;
     const b = parseFloat(state.current);
-    const expression = '${formatNumber(state.previous)} ${SYMBOLS[state.operator]} ${formatNumber(b)}=';
+    const expression = `${formatNumber(state.previous)} ${SYMBOLS[state.operator]} ${formatNumber(b)}=`;
     if(!runPendingOperation()) return;
-    addHistory{'$expression} ${state.current}');
+    addHistory(`${$expression} ${state.current}`);
     state.expression = expression;
     state.previous = null;
     state.operator = null;
@@ -318,7 +318,7 @@
     function formatNumber(num) {
       const abs = Math.abs(num);
       if (abs >= 1e15 || (abs > 0 && abs < 1e-6)) {
-        return Number(num.toPrecision(10).toExponential();
+        return Number(num.toPrecision(10).toExponential());
       }
       return String(num);
     }
@@ -350,6 +350,70 @@
     }
 
     // 5. SỰ KIỆN: CHUỘT VÀ BÀN PHÍM
-    
-</script>
+    // Điểm vào duy nhất: mọi thao tác đi qua rồi cập nhật màn hình 
+    function handleAction(action, value) {
+      switch(action) {
+        case 'digit':    inputDigit(value); break;
+        case 'decimal':  inputDecimal();  break;
+        case 'operator': chooseOperator(value); break;
+        case 'equals':   pressEquals();   break;
+        case 'clear':    clearAll();      break;
+        case 'delete':   deleteLast();    break;
+        case 'sign':     toggleSign();    break;
+        case 'percent':  percent();       break;
+      }
+      updateDisplay();
+    }
+
+    // Ủy quyền sự kiện: 1 listener cho cả bàn phím
+    keypad.addEventListener('click', (event) => {
+      const button = event.target.closest('button');
+      if (button)  handleAction(button.dataset.action, button.dataset.value);
+    });
+
+    const KEY_MAP = {
+      'Enter': ['equals'], '=': ['equals'],
+      'Backspace': ['delete'], 'Escape': ['clear'],
+      '.': ['decimal'], ',': ['decimal'], '%': [percent],
+      '+': ['operator', '+'], '-': ['operator', '-'],
+      '*': ['operator', '*'], 'x': ['operator', '*'], '/': ['operator', '/']
+    };
+
+    document.addEventListener('keydown', (event) => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;    // Không nhận Ctrl+R, Ctrl+C...
+      const mapped = /^[0-9]$/.test(event.key) ? ['digit', event.key] : KEY_MAP[event.key];
+      if (!mapped)  return;
+      event.preventDefault();    // tránh Enter bấm lại nút đang được focus
+      const [action, value] = mapped;
+      handleAction(action, value);
+      flashButton(action, value);
+    });
+
+    // Làm nút trên màn hình lún xuống khi gõ phím tương ứng
+    function flashButton(action, value) {
+      const selector = value ? `[data-action="${action}"][data-value="${value}"]` : `[data-action="${action}"]`;
+      const button = keypad.querySelector(selector);
+      if (!button)  return;
+      button.classList.add('pressed');
+      setTimeout(() => button.classList.remove('pressed'), 120);
+    }
+
+    // 6. CHẾ ĐỘ SÁNG/TỐI
+    const root = document.documentElement;
+    function setTheme(theme) {
+      root.dataset.theme = theme;
+      themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    themeToggle.addEventListener('click', () => {
+      setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+    });
+
+    // Lần đầu mở, trang hiện theo cài đặt sáng/tối của máy
+    setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    updateDisplay();
+  </script>
+</body>
+</html>
+        
+        
       
